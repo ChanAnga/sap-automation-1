@@ -4,31 +4,31 @@
   ansible.builtin.set_fact:
     proceed:                           true
 
-- name:                                "BOM: {{ bom_name }} Check Storage Account for {{ item.archive }}"
-  block:
+# - name:                                "BOM: {{ bom_name }} Check Storage Account for {{ item.archive }}"
+#   block:
 
-    - name:                            "BOM: {{ bom_name }} Check is file {{ item.archive }} is already downloaded"
-      ansible.builtin.uri:
-        url:                           "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive }}{% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
-        status_code:                   [200, 403, 404, 409]
-        method:                        HEAD
-      register:                        blob_exists
+    # - name:                            "BOM: {{ bom_name }} Check is file {{ item.archive }} is already downloaded"
+    #   ansible.builtin.uri:
+    #     url:                           "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive }}{% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
+    #     status_code:                   [200, 403, 404, 409]
+    #     method:                        HEAD
+    #   register:                        blob_exists
 
-    - name:                            "BOM: Debug {{ bom_name }} Download File {{ item.archive }} result"
-      ansible.builtin.debug:
-        var:                           blob_exists
-        verbosity:                     2
+    # - name:                            "BOM: Debug {{ bom_name }} Download File {{ item.archive }} result"
+    #   ansible.builtin.debug:
+    #     var:                           blob_exists
+    #     verbosity:                     2
 
-    - name:                            "BOM: {{ bom_name }} Authentication error {{ item.archive }}"
-      ansible.builtin.fail:
-        msg:                           "Authentication error, please check the SAS token"
-      when:                            blob_exists.status == 403
+    # - name:                            "BOM: {{ bom_name }} Authentication error {{ item.archive }}"
+    #   ansible.builtin.fail:
+    #     msg:                           "Authentication error, please check the SAS token"
+    #   when:                            blob_exists.status == 403
 
-    - name:                            "BOM: {{ bom_name }} Set Fact  {{ item.archive }}"
-      ansible.builtin.set_fact:
-        proceed:                       false
-      when:                            blob_exists.status != 404
-  when:                                check_storage_account | bool
+  #   - name:                            "BOM: {{ bom_name }} Set Fact  {{ item.archive }}"
+  #     ansible.builtin.set_fact:
+  #       proceed:                       false
+  #     when:                            blob_exists.status != 404
+  # when:                                check_storage_account | bool
 
 - name:                                "BOM: Debug {{ bom_name }} Download File {{ item.archive }}"
   ansible.builtin.debug:
@@ -130,24 +130,24 @@
         - create_checksums is defined
 
     #   03) Upload files to Azure
-    - name:                            "BOM: {{ bom_name }} Upload File {{ item.archive }}"
+    # - name:                            "BOM: {{ bom_name }} Upload File {{ item.archive }}"
 
-      ansible.builtin.command: >-
-                                       az storage blob upload
-                                         --account-name {{ account }}
-                                         --account-key {{ sapbits_access_key }}
-                                         --container-name {{ container }}
-                                         --name {{ item.archive }}
-                                         --file {{ result.dest }}
-                                         --if-none-match "*"
-                                         --no-progress
-      delegate_to:                     localhost
-      register:                        azresult
-      ignore_errors:                   true
-      failed_when:
-        - azresult.rc != 0
-        - azresult.stderr is defined
-        - azresult.stderr.find("BlobAlreadyExists") == -1
+    #   ansible.builtin.command: >-
+    #                                    az storage blob upload
+    #                                      --account-name {{ account }}
+    #                                      --account-key {{ sapbits_access_key }}
+    #                                      --container-name {{ container }}
+    #                                      --name {{ item.archive }}
+    #                                      --file {{ result.dest }}
+    #                                      --if-none-match "*"
+    #                                      --no-progress
+    #   delegate_to:                     localhost
+    #   register:                        azresult
+    #   ignore_errors:                   true
+    #   failed_when:
+    #     - azresult.rc != 0
+    #     - azresult.stderr is defined
+    #     - azresult.stderr.find("BlobAlreadyExists") == -1
 
     - name:                            "BOM: {{ bom_name }} Remove File {{ item.archive }}"
       become:                          true

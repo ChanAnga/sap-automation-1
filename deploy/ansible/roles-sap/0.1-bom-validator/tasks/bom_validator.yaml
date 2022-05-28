@@ -81,28 +81,28 @@
   ansible.builtin.debug:
     msg:                               "FOLDERNAME : {{ bom_file.rpartition('/')[0] }}"
 
-- name:                                "0.1 BoM Validator: - BOM: {{ bom_name }} Upload Folder"
-  vars:
-    bom_container_name:               "{{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/boms"
-  ansible.builtin.command: >-
-                                       az storage blob upload-batch
-                                         --account-name {{ account }}
-                                         --account-key {{ sapbits_access_key }}
-                                         --destination {{ bom_container_name }}/{{ bom_name }}
-                                         --source {{ bom_file.rpartition('/')[0] }}
-                                         --overwrite true
-                                         --if-none-match "*"
-                                         --no-progress
-  delegate_to:                         localhost
-  register:                            bom_upload_azresult
-  changed_when:                        false
-  ignore_errors:                       true
-  failed_when:
-    - bom_upload_azresult.rc != 0
-    - bom_upload_azresult.stderr is defined
-    - bom_upload_azresult.stderr.find("BlobAlreadyExists") == -1
-  when:
-    - upload
+# - name:                                "0.1 BoM Validator: - BOM: {{ bom_name }} Upload Folder"
+#   vars:
+#     bom_container_name:               "{{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/boms"
+#   ansible.builtin.command: >-
+#                                        az storage blob upload-batch
+#                                          --account-name {{ account }}
+#                                          --account-key {{ sapbits_access_key }}
+#                                          --destination {{ bom_container_name }}/{{ bom_name }}
+#                                          --source {{ bom_file.rpartition('/')[0] }}
+#                                          --overwrite true
+#                                          --if-none-match "*"
+#                                          --no-progress
+#   delegate_to:                         localhost
+#   register:                            bom_upload_azresult
+#   changed_when:                        false
+#   ignore_errors:                       true
+#   failed_when:
+#     - bom_upload_azresult.rc != 0
+#     - bom_upload_azresult.stderr is defined
+#     - bom_upload_azresult.stderr.find("BlobAlreadyExists") == -1
+#   when:
+#     - upload
 
 # ------------------<DEBUGGING>-------------------
 # - name: "List error codes"

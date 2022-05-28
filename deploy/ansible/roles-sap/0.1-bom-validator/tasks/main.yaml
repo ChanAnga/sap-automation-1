@@ -63,24 +63,24 @@
   become:                              true
   become_user:                         root
 
-- name:                                "0.1 BoM Validator: - Check storage account container"
-  ansible.builtin.command: >-
-                                       az storage blob upload
-                                         --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
-                                         --account-key {{ sapbits_access_key }}
-                                         --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives
-                                         --name readme.md
-                                         --file {{ readme_file.dest }}
-                                         --if-none-match "*"
-                                         --no-progress
-  delegate_to:                         localhost
-  register:                            azresult
-  ignore_errors:                       true
-  changed_when:                        false
-  failed_when:
-    - azresult.rc != 0
-    - azresult.stderr is defined
-    - azresult.stderr.find("BlobAlreadyExists") == -1
+# - name:                                "0.1 BoM Validator: - Check storage account container"
+#   ansible.builtin.command: >-
+#                                        az storage blob upload
+#                                          --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
+#                                          --account-key {{ sapbits_access_key }}
+#                                          --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives
+#                                          --name readme.md
+#                                          --file {{ readme_file.dest }}
+#                                          --if-none-match "*"
+#                                          --no-progress
+#   delegate_to:                         localhost
+#   register:                            azresult
+#   ignore_errors:                       true
+#   changed_when:                        false
+#   failed_when:
+#     - azresult.rc != 0
+#     - azresult.stderr is defined
+#     - azresult.stderr.find("BlobAlreadyExists") == -1
 
 
 # -------------------------------------+---------------------------------------8
@@ -93,10 +93,10 @@
 - name:                                "0.1 BoM Validator: - Process main BoM"
   ansible.builtin.include_tasks:       bom_validator.yaml
   vars:
-    account:                           "{{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}"
-    container:                         "{{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives"
+    # account:                           "{{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}"
+    # container:                         "{{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives"
     bom_name:                          "{{ bom_base_name }}"
-    upload:                            true
+    upload:                            false
 # -------------------------------------+---------------------------------------8
 - name:                                "0.1 BoM Validator: - Save BoM {{ bom_base_name }} as Dictionary"
   ansible.builtin.set_fact:
@@ -110,8 +110,8 @@
 - name:                                "0.1 BoM Validator: - Process dependent BoMs in a loop"
   ansible.builtin.include_tasks:       bom_validator.yaml
   vars:
-    account:                           "{{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}"
-    container:                         "{{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives"
+    # account:                           "{{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}"
+    # container:                         "{{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives"
     bom_name:                          "{{ bom_dependency.name }}"
     upload:                            false
   register:                            dependent_bom_collection
@@ -137,34 +137,34 @@
     dest:                              "{{ download_directory }}/bom/{{ bom_base_name }}.yaml"
     mode:                              0755
 
-- name:                                "0.1 BoM Validator: - Upload combined BoM"
-  ansible.builtin.command: >-
-                                       az storage blob upload
-                                         --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
-                                         --account-key {{ sapbits_access_key }}
-                                         --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/boms/{{ bom_base_name }}
-                                         --name {{ bom_base_name }}.yaml
-                                         --file {{ download_directory }}/bom/{{ bom_base_name }}.yaml
-                                         --overwrite true
-                                         --if-none-match "*"
-                                         --no-progress
-  delegate_to:                         localhost
-  register:                            azresult
-  ignore_errors:                       true
-  changed_when:                        false
-  failed_when:
-    - azresult.rc != 0
-    - azresult.stderr is defined
-    - azresult.stderr.find("BlobAlreadyExists") == -1
+# - name:                                "0.1 BoM Validator: - Upload combined BoM"
+#   ansible.builtin.command: >-
+#                                        az storage blob upload
+#                                          --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
+#                                          --account-key {{ sapbits_access_key }}
+#                                          --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/boms/{{ bom_base_name }}
+#                                          --name {{ bom_base_name }}.yaml
+#                                          --file {{ download_directory }}/bom/{{ bom_base_name }}.yaml
+#                                          --overwrite true
+#                                          --if-none-match "*"
+#                                          --no-progress
+#   delegate_to:                         localhost
+#   register:                            azresult
+#   ignore_errors:                       true
+#   changed_when:                        false
+#   failed_when:
+#     - azresult.rc != 0
+#     - azresult.stderr is defined
+#     - azresult.stderr.find("BlobAlreadyExists") == -1
 
 
 # /*---------------------------------------------------------------------------8
 # |                                   END                                      |
 # +------------------------------------4--------------------------------------*/
 
-- name:                                "0.1 BoM Validator: - BoM folder path"
-  ansible.builtin.debug:
-    msg:                               "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/boms/{{ bom_base_name }}/{{ bom_base_name }}.yaml"
+# - name:                                "0.1 BoM Validator: - BoM folder path"
+#   ansible.builtin.debug:
+#     msg:                               "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/boms/{{ bom_base_name }}/{{ bom_base_name }}.yaml"
 
 
 ...
