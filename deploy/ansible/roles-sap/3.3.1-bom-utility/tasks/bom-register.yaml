@@ -123,7 +123,7 @@
 
       when:                            not microsoft_supplied_bom.stat.exists
 
-  when:                                result is failed or always_upload_jinja_templates
+  when:                                always_upload_jinja_templates
 
 
 # Validate that BoM was found
