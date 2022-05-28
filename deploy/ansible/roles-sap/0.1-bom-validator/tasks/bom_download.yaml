@@ -149,11 +149,11 @@
     #     - azresult.stderr is defined
     #     - azresult.stderr.find("BlobAlreadyExists") == -1
 
-    - name:                            "BOM: {{ bom_name }} Remove File {{ item.archive }}"
-      become:                          true
-      ansible.builtin.file:
-        dest:                          "{{ download_directory }}/files/{{ item.archive }}"
-        state:                         absent
+    # - name:                            "BOM: {{ bom_name }} Remove File {{ item.archive }}"
+    #   become:                          true
+    #   ansible.builtin.file:
+    #     dest:                          "{{ download_directory }}/files/{{ item.archive }}"
+    #     state:                         absent
 
   when: proceed
 
