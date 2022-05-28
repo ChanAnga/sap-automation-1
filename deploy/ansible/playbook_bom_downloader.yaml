@@ -37,26 +37,26 @@
       ansible.builtin.set_fact:
         tier:                          bom
 
-    - name:                            "BOM Downloader: Set deployer keyvault name"
-      ansible.builtin.set_fact:
-        kv_name:                       "{{ deployer_kv_name }}"
-      when:                            deployer_kv_name is defined
+    # - name:                            "BOM Downloader: Set deployer keyvault name"
+    #   ansible.builtin.set_fact:
+    #     kv_name:                       "{{ deployer_kv_name }}"
+    #   when:                            deployer_kv_name is defined
 
-    - block:
-        - name:                        "BOM Downloader: Load the keyvault secrets"
-          ansible.builtin.include_role:
-            name:                      roles-misc/0.2-kv-secrets
-            public:                    true
-      tags:
-        - 0.2-kv-secrets
+    # - block:
+    #     - name:                        "BOM Downloader: Load the keyvault secrets"
+    #       ansible.builtin.include_role:
+    #         name:                      roles-misc/0.2-kv-secrets
+    #         public:                    true
+    #   tags:
+    #     - 0.2-kv-secrets
 
-    - block:
-        - name:                        "BOM Downloader: Load the storage account details"
-          ansible.builtin.include_role:
-            name:                      roles-misc/0.3.sap-installation-media-storage-details
-            public:                    true
-      tags:
-        - 0.3.sap-installation-media-storage-details
+    # - block:
+    #     - name:                        "BOM Downloader: Load the storage account details"
+    #       ansible.builtin.include_role:
+    #         name:                      roles-misc/0.3.sap-installation-media-storage-details
+    #         public:                    true
+    #   tags:
+    #     - 0.3.sap-installation-media-storage-details
 
     - name:                            "BOM Downloader: Set the preparation tier"
       ansible.builtin.set_fact:
