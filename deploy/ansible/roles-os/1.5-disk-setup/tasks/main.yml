@@ -67,22 +67,22 @@
     state:                             present
   loop:                                "{{ volume_groups }}"
   register:                            vgscreated
-  when:
-    - tier == "sapos"
+  # when:
+  #   - tier == "sapos"
 
 - name:                                "1.5 Disk setup - Print vgcreated details"
   ansible.builtin.debug:
     msg:                               "VOLUME GROUPS: {{ vgscreated | json_query('results[*].item') }}"
     verbosity:                         2
   when:
-    - tier == "sapos"
+    # - tier == "sapos"
     - vgscreated is defined
 
 - name:                                "1.5 Disk setup - Filter the volume group names from vgscreated results"
   ansible.builtin.set_fact:
     vgcreatedlist:                     "{{ vgscreated | json_query('results[*].item.vg') }}"
-  when:
-    - tier == "sapos"
+  # when:
+  #   - tier == "sapos"
 
 
 # CREATE LOGICAL VOLUMES BASED ON VGCREATEDLIST
@@ -101,21 +101,24 @@
   loop:                                "{{ logical_volumes }}"
   register:                            lvscreated
   when:
-    - tier == "sapos"
-    - item.node_tier in [ 'all', supported_tiers ] | flatten(levels=1)
+    - item.tier == "sapos"
+    # - item.node_tier in [ 'all', supported_tiers ] | flatten(levels=1)
+    - item.node_tier in node_tier or item.node_tier == 'all'
     - item.vg in vgcreatedlist
 
 - name:                                "1.5 Disk setup - Filter the logical volumes created results"
   ansible.builtin.set_fact:
     lvcreatedlist_tmp:                 "{{ lvscreated.results | rejectattr('skipped', 'defined') | list }}"
   when:
-    - tier == "sapos"
+  #   - tier == "sapos"
+    - lvscreated is defined
 
 - name:                                "1.5 Disk setup - Get the logical volumes from the list"
   ansible.builtin.set_fact:
     lvcreatedlist:                     "{{ lvcreatedlist_tmp | map(attribute='item.lv') | list }}"
   when:
-    - tier == "sapos"
+    # - tier == "sapos"
+    - lvscreated is defined
 
 - name:                                "1.5 Disk setup - Filesystem creation"
   ansible.builtin.filesystem:
@@ -125,8 +128,9 @@
   loop:                                "{{ logical_volumes }}"
   register :                           filesystemscreated
   when:
-    - item.tier in ["all", tier ]
-    - item.node_tier in [ 'all', supported_tiers ] | flatten(levels=1)
+    - item.tier == "sapos"
+    # - item.node_tier in [ 'all', supported_tiers ] | flatten(levels=1)
+    - item.node_tier in node_tier or item.node_tier == 'all'
     - item.fstype is defined
     - item.lv in lvcreatedlist
 
@@ -134,7 +138,8 @@
   ansible.builtin.set_fact:
     fscreatedlist_tmp:                 "{{ filesystemscreated.results | rejectattr('skipped', 'defined') | list }}"
   when:
-    - tier == "sapos"
+    # - tier == "sapos"
+    - filesystemscreated is defined
 
 - name:                                "1.5 Disk setup - Debug disk information"
   ansible.builtin.debug:
@@ -144,7 +149,11 @@
       - "Created Filesystems:      {{ fscreatedlist_tmp }} "
     verbosity:                         2
   when:
-    - tier == "sapos"
+    # - tier == "sapos"
+    - filesystemscreated_tmp is defined
+    - lvcreatedlist is defined
+    - vgcreatedlist is defined
+
 
 ...
 # /*---------------------------------------------------------------------------8
