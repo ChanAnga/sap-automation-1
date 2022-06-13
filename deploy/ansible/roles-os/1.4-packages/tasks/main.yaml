@@ -116,6 +116,9 @@
       loop:
         - { state: 'present' }  # First install required packages
         - { state: 'absent' }   # Then remove packages that we don't want
+  when:
+    - distro_flavor != 'redhat'
+      
 
 - name:                                "1.4 Packages: - Update OS packages: {{ distribution_full_id }}"
   block:
@@ -150,6 +153,9 @@
       loop:
         - { state: 'present' }  # First install required packages
         - { state: 'absent' }   # Then remove packages that we don't want
+  
+  when:
+    - distro_flavor != 'redhat'
 
 - name:                                "1.4 Packages: - Update OS packages: {{ distro_name }} {{ node_tier }}"
   block:
@@ -186,6 +192,8 @@
       loop:
         - { state: 'present' }  # First install required packages
         - { state: 'absent' }   # Then remove packages that we don't want
+  when:
+    - distro_flavor != 'redhat'
 
 - name:                                "1.4 Packages: - Update OS packages: {{ distribution_full_id }} {{ node_tier }}"
   block:
@@ -220,6 +228,8 @@
       loop:
         - { state: 'present' }  # First install required packages
         - { state: 'absent' }   # Then remove packages that we don't want
+  when:
+    - distro_flavor != 'redhat'
 
 - name:                                "1.4 Packages: - Upgrade all: {{ distribution_full_id }}"
   zypper:
@@ -232,18 +242,18 @@
   tags:
     - skip_ansible_lint
 
-- name:                                "1.4 Packages: - Upgrade all: {{ distribution_full_id }}"
-  become:                              true
-  ansible.builtin.yum:
-    name:                              '*'
-    state:                             latest
-    exclude:                           kernel*
-  when:
-    - ansible_os_family == 'Redhat'
-    - upgrade_packages is defined
-    - upgrade_packages
-  tags:
-    - skip_ansible_lint
+# - name:                                "1.4 Packages: - Upgrade all: {{ distribution_full_id }}"
+#   become:                              true
+#   ansible.builtin.yum:
+#     name:                              '*'
+#     state:                             latest
+#     exclude:                           kernel*
+#   when:
+#     - ansible_os_family == 'Redhat'
+#     - upgrade_packages is defined
+#     - upgrade_packages
+#   tags:
+#     - skip_ansible_lint
 
 
 # /*----------------------------------------------------------------------------8

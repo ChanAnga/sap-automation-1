@@ -70,12 +70,12 @@
       tags:
         - 1.0-sudoers
 
-    - block:
-        - name:                        "OS configuration playbook: - Set swap"
-          ansible.builtin.include_role:
-            name:                      roles-os/1.1-swap
-      tags:
-        - 1.1-swap
+    # - block:
+    #     - name:                        "OS configuration playbook: - Set swap"
+    #       ansible.builtin.include_role:
+    #         name:                      roles-os/1.1-swap
+    #   tags:
+    #     - 1.1-swap
 
     - block:
         - name:                        "OS configuration playbook: - Set hostname"
@@ -83,6 +83,14 @@
             name:                      roles-os/1.2-hostname
       tags:
         - 1.2-hostname
+
+    - block:
+        - name:                        "Red Hat SAP Preconfigure"
+          ansible.builtin.include_role:
+            name:                      sap-preconfigure
+      tags:
+        - redhat-sap-preconfigure
+      when:     ansible_os_family|upper == 'REDHAT'
 
     - block:
         - name:                        "OS configuration playbook: - Ensure the repositories are registered"
@@ -98,12 +106,12 @@
       tags:
         - 1.4-packages
 
-    - block:
-        - name:                        "OS configuration playbook: - Configure volume groups and logical volumes"
-          ansible.builtin.include_role:
-            name:                      roles-os/1.5-disk-setup
-      tags:
-        - 1.5-disk-setup
+    # - block:
+    #     - name:                        "OS configuration playbook: - Configure volume groups and logical volumes"
+    #       ansible.builtin.include_role:
+    #         name:                      roles-os/1.5-disk-setup
+    #   tags:
+    #     - 1.5-disk-setup
 
     - block:
         - name:                        Include 1.5.2-disk-setup-ora-multi-sid role
@@ -127,12 +135,12 @@
       tags:
         - 1.9-kernelparameters
 
-    - block:
-        - name:                        "OS configuration playbook: - Configure accounts"
-          ansible.builtin.include_role:
-            name:                      roles-os/1.11-accounts
-      tags:
-        - 1.11-accounts
+    # - block:
+    #     - name:                        "OS configuration playbook: - Configure accounts"
+    #       ansible.builtin.include_role:
+    #         name:                      roles-os/1.11-accounts
+    #   tags:
+    #     - 1.11-accounts
 
     - block:
         - name:                        "OS configuration playbook: - Configure accounts"

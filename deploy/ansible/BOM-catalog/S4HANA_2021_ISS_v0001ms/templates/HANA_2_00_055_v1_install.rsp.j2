@@ -28,7 +28,7 @@ components={{ _rsp_components }}
 install_execution_mode=standard
 
 # Ignore failing prerequisite checks
-ignore=
+ignore= check_signature_file
 
 # Do not Modify '/etc/sudoers' File ( Default: n )
 skip_modify_sudoers=n
@@ -42,10 +42,10 @@ use_pmem=n
 install_hostagent=y
 
 # Database Isolation ( Default: low; Valid values: low | high )
-db_isolation=low
+db_isolation={{ _rsp_db_isolation }}
 
 # Create initial tenant database ( Default: y )
-create_initial_tenant=y
+create_initial_tenant=n
 
 # Non-standard Shared File System
 checkmnt=
@@ -93,7 +93,7 @@ system_usage={{ _rsp_system_usage }}
 lss_trust_unsigned_server=n
 
 # Do you want to enable data and log volume encryption? ( Default: n )
-volume_encryption=n
+volume_encryption=y
 
 # Location of Data Volumes ( Default: /hana/data/${sid} )
 datapath=/hana/data/${sid}
@@ -123,7 +123,7 @@ certificates_hostmap=
 master_password={{ main_password }}
 
 # System Administrator Password
-password=
+password={{ main_password }}
 
 # System Administrator Home Directory ( Default: /usr/sap/${sid}/home )
 home=/usr/sap/${sid}/home

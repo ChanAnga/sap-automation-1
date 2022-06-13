@@ -25,33 +25,33 @@
         state:                          absent
 
 
-    - name:                            "PAS Installation Playbook: - Set pas fact"
-      ansible.builtin.set_fact:
-        tier:                          pas
+    # - name:                            "PAS Installation Playbook: - Set pas fact"
+    #   ansible.builtin.set_fact:
+    #     tier:                          pas
 
-    - name:                            "PAS Installation Playbook: - Read/Create passwords"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.1-passwords
-        public:                        true
+    # - name:                            "PAS Installation Playbook: - Read/Create passwords"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.1-passwords
+    #     public:                        true
 
-      tags:
-        - 0.1-passwords
+    #   tags:
+    #     - 0.1-passwords
 
-    - name:                            "PAS Installation Playbook: - Read/Create key vault secrets"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.2-kv-secrets
-        public:                        true
-      tags:
-        - 0.2-kv-secrets
+    # - name:                            "PAS Installation Playbook: - Read/Create key vault secrets"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.2-kv-secrets
+    #     public:                        true
+    #   tags:
+    #     - 0.2-kv-secrets
 
-    - name:                            "PAS Installation Playbook: - Read storage account details"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.3.sap-installation-media-storage-details
-        public:                        true
-      vars:
-        tier:                          pas
-      tags:
-        - kv-sap-installation-media-storage-details
+    # - name:                            "PAS Installation Playbook: - Read storage account details"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.3.sap-installation-media-storage-details
+    #     public:                        true
+    #   vars:
+    #     tier:                          pas
+    #   tags:
+    #     - kv-sap-installation-media-storage-details
 
 # /*---------------------------------------------------------------------------8
 # |                                                                            |
@@ -74,25 +74,25 @@
     - name:                            "PAS Installation Playbook: - Set 'pas' tier facts"
       ansible.builtin.set_fact:
         tier:                          generic
-        main_password:                 "{{ hostvars.localhost.sap_password }}"
-        sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
-        sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
-        always_upload_jinja_templates: false
+        main_password:                 "{{ sap_password }}"
+        # sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
+        # sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
+        always_upload_jinja_templates: true
       tags:
         - always
 
-    - name:                            Generic Users and Groups for SAP Installation
-      ansible.builtin.include_role:
-        name:                          roles-sap-os/2.5-sap-users
-        tasks_from:                    user_nw.yaml
-      vars:
-        tier:                          generic
-        main_password:                 "{{ hostvars.localhost.sap_password }}"
-        sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
-        sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
-      when:                            platform != 'ORACLE'
-      tags:
-        - 2.5-sap-users
+    # - name:                            Generic Users and Groups for SAP Installation
+    #   ansible.builtin.include_role:
+    #     name:                          roles-sap-os/2.5-sap-users
+    #     tasks_from:                    user_nw.yaml
+    #   vars:
+    #     tier:                          generic
+    #     main_password:                 "{{ hostvars.localhost.sap_password }}"
+    #     sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
+    #     sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
+    #   when:                            platform != 'ORACLE'
+    #   tags:
+    #     - 2.5-sap-users
 
 
 # /*---------------------------------------------------------------------------8
@@ -124,11 +124,11 @@
     - name:                            "PAS Installation Playbook: - Set 'pas' tier facts"
       ansible.builtin.set_fact:
         tier:                          pas
-        main_password:                 "{{ hostvars.localhost.sap_password }}"
-        sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
-        sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
+        main_password:                 "{{ sap_password }}"
+        # sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
+        # sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
         file_path:                     "{% if scs_high_availability %}INSTALL/HA/ABAP/APP1{% else %}INSTALL/DISTRIBUTED/ABAP/APP1{% endif %}"
-        always_upload_jinja_templates: false
+        always_upload_jinja_templates: true
       tags:
         - always
 

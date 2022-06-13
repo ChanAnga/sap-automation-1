@@ -67,22 +67,21 @@
     state:                             present
   loop:                                "{{ volume_groups }}"
   register:                            vgscreated
-  # when:
-  #   - tier == "sapos"
+  when:
+    - tier == "sapos"
 
 - name:                                "1.5 Disk setup - Print vgcreated details"
   ansible.builtin.debug:
     msg:                               "VOLUME GROUPS: {{ vgscreated | json_query('results[*].item') }}"
     verbosity:                         2
   when:
-    # - tier == "sapos"
-    - vgscreated is defined
+    - tier == "sapos"
 
 - name:                                "1.5 Disk setup - Filter the volume group names from vgscreated results"
   ansible.builtin.set_fact:
     vgcreatedlist:                     "{{ vgscreated | json_query('results[*].item.vg') }}"
-  # when:
-  #   - tier == "sapos"
+  when:
+    - tier == "sapos"
 
 
 # CREATE LOGICAL VOLUMES BASED ON VGCREATEDLIST
@@ -110,15 +109,53 @@
   ansible.builtin.set_fact:
     lvcreatedlist_tmp:                 "{{ lvscreated.results | rejectattr('skipped', 'defined') | list }}"
   when:
-  #   - tier == "sapos"
+    - tier == "sapos"
     - lvscreated is defined
 
 - name:                                "1.5 Disk setup - Get the logical volumes from the list"
   ansible.builtin.set_fact:
     lvcreatedlist:                     "{{ lvcreatedlist_tmp | map(attribute='item.lv') | list }}"
   when:
-    # - tier == "sapos"
+    - tier == "sapos"
     - lvscreated is defined
+
+
+- name:                                "Register Swap Variable"
+  ansible.builtin.command:             swapon -s | grep -ci "/dev"
+  register :                           swaponcheck
+
+# Mount Swap space
+
+- name:                                "1.5 mkswap"
+  ansible.builtin.command:             mkswap "{{ dev_path_from_lv_item }}"
+  loop:                                "{{ logical_volumes }}"
+  when:
+    - swaponcheck.stdout.find('dev') == -1
+    - item.fstype is defined and item.fstype == 'swap'
+    - item.lv in lvcreatedlist
+
+- name:                                "Mount swap"
+  ansible.builtin.mount:
+    src:                               "{{ item.src }}"
+    path:                              "{{ item.path }}"
+    fstype:                            "{{ item.type }}"
+    opts:                              defaults
+    state:                             mounted
+  loop:
+    - { node_tier: 'all',  type: 'swap',   src: '/dev/vg_swap/lv_swap',                 path: 'swap'         }
+  when:
+    - swaponcheck.stdout.find('dev') == -1
+
+- name:                                "1.5 Swap Space On"
+  ansible.builtin.command:             swapon -v "{{ dev_path_from_lv_item }}"
+  loop:                                "{{ logical_volumes }}"
+  when:
+    - item.tier == "sapos"
+    # - item.node_tier in [ 'all', supported_tiers ] | flatten(levels=1)
+    - item.node_tier in node_tier or item.node_tier == 'all'
+    - item.lv in lvcreatedlist
+    - item.fstype is defined and item.fstype == 'swap'
+    - swaponcheck.stdout.find('dev') == -1
 
 - name:                                "1.5 Disk setup - Filesystem creation"
   ansible.builtin.filesystem:
@@ -132,13 +169,16 @@
     # - item.node_tier in [ 'all', supported_tiers ] | flatten(levels=1)
     - item.node_tier in node_tier or item.node_tier == 'all'
     - item.fstype is defined
+    - item.fstype != 'swap'
     - item.lv in lvcreatedlist
+
+
 
 - name:                                "1.5 Disk setup - Filter the filesystem created results"
   ansible.builtin.set_fact:
     fscreatedlist_tmp:                 "{{ filesystemscreated.results | rejectattr('skipped', 'defined') | list }}"
   when:
-    # - tier == "sapos"
+    - tier == "sapos"
     - filesystemscreated is defined
 
 - name:                                "1.5 Disk setup - Debug disk information"
@@ -149,7 +189,7 @@
       - "Created Filesystems:      {{ fscreatedlist_tmp }} "
     verbosity:                         2
   when:
-    # - tier == "sapos"
+    - tier == "sapos"
     - filesystemscreated_tmp is defined
     - lvcreatedlist is defined
     - vgcreatedlist is defined

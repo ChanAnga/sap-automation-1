@@ -28,15 +28,27 @@ admin_groups:
   - name:         sapsys
     gid:          "{{ sapsys_gid }}"
     state:        present
-    tier:         os
+    tier:         sapos
     enabled:      true
     node_tier:    all
   - name:         sapinst
     gid:          "{{ sapinst_gid }}"
     state:        present
-    tier:         os
+    tier:         sapos
     enabled:      true
     node_tier:    all
+  - name:         "{{ db_sid|lower }}shm"
+    gid:          "{{ hdbshm_gid }}"
+    state:        present
+    tier:         sapos
+    enabled:      true
+    node_tier:    hana
+  - name:         "{{ sap_sid|lower }}_grp"
+    gid:          "{{ tdb_gid }}"
+    state:        present
+    tier:         sapos
+    enabled:      true
+    node_tier:    hana
 
   # Admin groups for Oracle Non-ASM
   - name:         dba
@@ -218,98 +230,137 @@ admin_groups:
 # -------------------------------------+---------------------------------------8
 
 admin_users:
-  - name:         example
-    comment:      "Example User"
-    uid:          "2000"
-    group:        example
-    groups:       ["users", "adm"]
-    sudoers_role: "admin_no_password"
-    shell:        /bin/bash
-    password:     "some_password_string"
-    state:        present
-    tier:         example
-    enabled:      true
-    node_tier:    none
+ - name:         example
+   comment:      "Example User"
+   uid:          "2000"
+   group:        example
+   groups:       ["users", "adm"]
+   sudoers_role: "admin_no_password"
+   shell:        /bin/bash
+   password:     "some_password_string"
+   state:        present
+   tier:         example
+   enabled:      true
+   node_tier:    none
 
-#  - name:         sapadm
-#   comment:      "SAP Host Agent"
-#    uid:          "{{ sapadm_uid }}"
-#    group:        sapsys
-#    groups:       ["sapsys"]
-#    password:     "some_password_string"
-#    sudoers_role: "admin_no_password"
-#    shell:        /bin/csh
-#    state:        present
-#    tier:         sapos
-#    node_tier:    all
-#    enabled:      true
+ - name:         sapadm
+   comment:      "SAP Host Agent"
+   uid:          "{{ sapadm_uid }}"
+   group:        sapsys
+   groups:       ["sapsys"]
+   password:     "{{ user_password }}"
+   sudoers_role: "admin_no_password"
+   shell:        /bin/csh
+   state:        present
+   tier:         sapos
+   node_tier:    all
+   enabled:      true
 
-#  - name:         "{{ sap_sid|lower }}adm"
-#    comment:      "SAP System Administrator"
-#    uid:          "{{ sidadm_uid }}"
-#    group:        sapsys
-#    groups:       ["sapsys"]
-#    password:     "some_password_string"
-#    sudoers_role: "admin_no_password"
-#    shell:        /bin/csh
-#    state:        present
-#    tier:         sapos
-#    node_tier:    all
-#    enabled:      true
+ - name:         daaadm
+   comment:      "SAP Diagnostics Agent"
+   uid:          "{{ daaadm_uid }}"
+   group:        sapsys
+   groups:       ["sapsys","sapinst"]
+   password:     "{{ user_password }}"
+   sudoers_role: "admin_no_password"
+   shell:        /bin/csh
+   state:        present
+   tier:         sapos
+   node_tier:    all
+   enabled:      true
+
+ - name:         "{{ sap_sid|lower }}adm"
+   comment:      "SAP System Administrator"
+   uid:          "{{ sidadm_uid }}"
+   group:        sapsys
+   groups:       ["sapsys","sapinst"]
+   password:     "{{ user_password }}"
+   sudoers_role: "admin_no_password"
+   shell:        /bin/csh
+   state:        present
+   tier:         sapos
+   node_tier:    all
+   enabled:      true
+
+ - name:         "{{ db_sid|lower }}adm"
+   comment:      "hana db Administrator"
+   uid:          "{{ hdbadm_uid }}"
+   group:        sapsys
+   groups:       ["sapsys","{{ db_sid|lower }}shm","sapinst"]
+   password:     "{{ user_password }}"
+   sudoers_role: "admin_no_password"
+   shell:        /bin/csh
+   state:        present
+   tier:         sapos
+   node_tier:    hana
+   enabled:      true
+
+ - name:         "tdb{{ sap_sid|lower }}"
+   comment:      "HANA Tenant Id for high isolation"
+   uid:          "{{ tdb_uid }}"
+   group:        "sapsys"
+   groups:       ["{{ sap_sid|lower }}_grp","{{ db_sid|lower }}shm"]
+   password:     "{{ user_password }}"
+   sudoers_role: "admin_no_password"
+   shell:        /bin/csh
+   state:        present
+   tier:         sapos
+   node_tier:    hana
+   enabled:      true
 
 # Admin users for Oracle Non-ASM
 
-  - name:         "ora{{ sap_sid|lower }}"
-    comment:      "Oracle Database System Administrator"
-    uid:          "{{ orasid_uid }}"
-    group:        dba
-    groups:       ["oper","sapinst","oinstall"]
-    sudoers_role: "admin_no_password"
-    password:     "{{ main_password }}"
-    shell:        /bin/csh
-    state:        present
-    tier:         ora
-    node_tier:    oracle
-    enabled:      true
+ - name:         "ora{{ sap_sid|lower }}"
+   comment:      "Oracle Database System Administrator"
+   uid:          "{{ orasid_uid }}"
+   group:        dba
+   groups:       ["oper","sapinst","oinstall"]
+   sudoers_role: "admin_no_password"
+   password:     "{{ main_password }}"
+   shell:        /bin/csh
+   state:        present
+   tier:         ora
+   node_tier:    oracle
+   enabled:      true
 
-  - name:         "oracle"
-    comment:      "Oracle Database software Administrator"
-    uid:          "{{ oracle_uid }}"
-    group:        oinstall
-    groups:       ["oper", "sapsys", "sapinst", "asmdba", "dba", "asmadmin", "asmoper"]
-    sudoers_role: "admin_no_password"
-    password:     "{{ main_password }}"
-    shell:        /bin/csh
-    state:        present
-    tier:         ora
-    node_tier:    oracle
-    enabled:      true
+ - name:         "oracle"
+   comment:      "Oracle Database software Administrator"
+   uid:          "{{ oracle_uid }}"
+   group:        oinstall
+   groups:       ["oper", "sapsys", "sapinst", "asmdba", "dba", "asmadmin", "asmoper"]
+   sudoers_role: "admin_no_password"
+   password:     "{{ main_password }}"
+   shell:        /bin/csh
+   state:        present
+   tier:         ora
+   node_tier:    oracle
+   enabled:      true
 
-  - name:         "oracle"
-    comment:      "Oracle Database software Administrator"
-    uid:          "{{ oracle_uid }}"
-    group:        oinstall
-    groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
-    sudoers_role: "admin_no_password"
-    password:     "{{ main_password }}"
-    shell:        /bin/csh
-    state:        present
-    tier:         ora
-    node_tier:    observer
-    enabled:      true
+ - name:         "oracle"
+   comment:      "Oracle Database software Administrator"
+   uid:          "{{ oracle_uid }}"
+   group:        oinstall
+   groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
+   sudoers_role: "admin_no_password"
+   password:     "{{ main_password }}"
+   shell:        /bin/csh
+   state:        present
+   tier:         ora
+   node_tier:    observer
+   enabled:      true
 
-  - name:         "observer"
-    comment:      "Oracle observer"
-    uid:          "{{ observer_uid }}"
-    group:        oinstall
-    groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
-    sudoers_role: "admin_no_password"
-    password:     "{{ main_password }}"
-    shell:        /bin/csh
-    state:        present
-    tier:         ora
-    node_tier:    observer
-    enabled:      true
+ - name:         "observer"
+   comment:      "Oracle observer"
+   uid:          "{{ observer_uid }}"
+   group:        oinstall
+   groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
+   sudoers_role: "admin_no_password"
+   password:     "{{ main_password }}"
+   shell:        /bin/csh
+   state:        present
+   tier:         ora
+   node_tier:    observer
+   enabled:      true
 
 #####
 # Admin users for Oracle Non-ASM Multi-SID
@@ -327,45 +378,45 @@ admin_users:
   #   node_tier:    oracle-multi-sid
   #   enabled:      true
 
-  - name:         "oracle"
-    comment:      "Oracle Database software Administrator"
-    uid:          "{{ oracle_uid }}"
-    group:        oinstall
-    groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
-    sudoers_role: "admin_no_password"
-    password:     "{{ main_password }}"
-    shell:        /bin/csh
-    state:        present
-    tier:         ora
-    node_tier:    oracle-multi-sid
-    enabled:      true
+ - name:         "oracle"
+   comment:      "Oracle Database software Administrator"
+   uid:          "{{ oracle_uid }}"
+   group:        oinstall
+   groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
+   sudoers_role: "admin_no_password"
+   password:     "{{ main_password }}"
+   shell:        /bin/csh
+   state:        present
+   tier:         ora
+   node_tier:    oracle-multi-sid
+   enabled:      true
 
 #Admin users for Oracle ASM
 
-  - name:         "ora{{ db_sid|lower }}"
-    comment:      "Oracle Database System Administrator"
-    uid:          "{{ orasid_uid }}"
-    group:        dba
-    groups:       ["oper","sapinst","oinstall"]
-    sudoers_role: "admin_no_password"
-    password:     "{{ main_password }}"
-    shell:        /bin/csh
-    state:        present
-    tier:         oraasm
-    node_tier:    oracle-asm
-    enabled:      true
+ - name:         "ora{{ db_sid|lower }}"
+   comment:      "Oracle Database System Administrator"
+   uid:          "{{ orasid_uid }}"
+   group:        dba
+   groups:       ["oper","sapinst","oinstall"]
+   sudoers_role: "admin_no_password"
+   password:     "{{ main_password }}"
+   shell:        /bin/csh
+   state:        present
+   tier:         oraasm
+   node_tier:    oracle-asm
+   enabled:      true
 
-  - name:         "oracle"
-    comment:      "Oracle Database software Administrator"
-    uid:          "{{ oracle_uid }}"
-    group:        oinstall
-    groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
-    sudoers_role: "admin_no_password"
-    password:     "{{ main_password }}"
-    shell:        /bin/csh
-    state:        present
-    tier:         oraasm
-    node_tier:    oracle-asm
-    enabled:      true
+ - name:         "oracle"
+   comment:      "Oracle Database software Administrator"
+   uid:          "{{ oracle_uid }}"
+   group:        oinstall
+   groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
+   sudoers_role: "admin_no_password"
+   password:     "{{ main_password }}"
+   shell:        /bin/csh
+   state:        present
+   tier:         oraasm
+   node_tier:    oracle-asm
+   enabled:      true
 
 ...

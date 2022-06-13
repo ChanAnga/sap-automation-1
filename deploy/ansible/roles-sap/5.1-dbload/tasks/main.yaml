@@ -21,6 +21,22 @@
     state:                             absent
   when:                                reinstall
 
+# +------------------------------------4--------------------------------------*/
+
+- name:                            "SAP HANA: Set dir_params fact"
+  ansible.builtin.set_fact:
+    dir_params:                    "{{ target_media_location }}/.params"
+
+#   0x) Create hidden directory for parameter files
+- name:                            "SAP DB load: Create hidden directory"
+  ansible.builtin.file:
+    path:                          "{{ item.path }}"
+    state:                         directory
+    mode:                          '{{ item.mode }}'
+  loop:
+    - { state: 'directory', mode: '0755', path: '{{ target_media_location }}' }
+    - { state: 'directory', mode: '0755', path: '{{ dir_params }}' }
+
 - name:                                "DBLoad: - check if installed"
   ansible.builtin.stat:
     path:                              /etc/sap_deployment_automation/sap_deployment_dbload.txt
@@ -55,7 +71,7 @@
     tasks_from:                        bom-template
   vars:
     task_prefix:                       "DBLoad: "
-    always_upload_jinja_templates:     false
+    always_upload_jinja_templates:     true
     bom_name:                          "{{ bom_base_name }}"
     sap_cd_package_hdbclient:          "{{ target_media_location }}/CD_HDBCLIENT/SAP_HANA_CLIENT"
     sap_cd_package_cd1:                "{{ target_media_location }}/CD_EXPORT"
@@ -101,7 +117,7 @@
 
     - name:                            "DBLoad: - run SAPInst"
       ansible.builtin.shell: |
-                                       ./sapinst SAPINST_INPUT_PARAMETERS_URL={{ target_media_location }}/downloads/{{ sap_inifile }}     \
+                                       ./sapinst SAPINST_INPUT_PARAMETERS_URL={{ dir_params }}/{{ sap_inifile }}     \
                                                  SAPINST_EXECUTE_PRODUCT_ID={{ bom.product_ids.dbl }}                          \
                                                  SAPINST_SKIP_DIALOGS=true                                                     \
                                                  SAPINST_START_GUISERVER=false

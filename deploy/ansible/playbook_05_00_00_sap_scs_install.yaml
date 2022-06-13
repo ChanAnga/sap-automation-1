@@ -30,34 +30,34 @@
         state:                          absent
 
 
-    - name:                            "SCS Installation Playbook: - Set scs fact"
-      ansible.builtin.set_fact:
-        tier:                          scs
+    # - name:                            "SCS Installation Playbook: - Set scs fact"
+    #   ansible.builtin.set_fact:
+    #     tier:                          scs
 
-    - name:                            "SCS Installation Playbook: - Read/Create passwords"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.1-passwords
-        public:                        true
+    # - name:                            "SCS Installation Playbook: - Read/Create passwords"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.1-passwords
+    #     public:                        true
 
-      tags:
-        - 0.1-passwords
+    #   tags:
+    #     - 0.1-passwords
 
-    - name:                            "SCS Installation Playbook: - Read/Create key vault secrets"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.2-kv-secrets
-        public:                        true
-      vars:
-        tier:                          fencing
-      tags:
-        - kv-secrets
-      when:                            platform != "ORACLE"
+    # - name:                            "SCS Installation Playbook: - Read/Create key vault secrets"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.2-kv-secrets
+    #     public:                        true
+    #   vars:
+    #     tier:                          fencing
+    #   tags:
+    #     - kv-secrets
+    #   when:                            platform != "ORACLE"
 
-    - name:                            "SCS Installation Playbook: - Read storage account details"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.3.sap-installation-media-storage-details
-        public:                        true
-      tags:
-        - kv-sap-installation-media-storage-details
+    # - name:                            "SCS Installation Playbook: - Read storage account details"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.3.sap-installation-media-storage-details
+    #     public:                        true
+    #   tags:
+    #     - kv-sap-installation-media-storage-details
 
 # /*---------------------------------------------------------------------------8
 # |                                                                            |
@@ -77,18 +77,18 @@
 
   tasks:
 
-    - name:                            Generic Users and Groups for SAP Installation
-      ansible.builtin.include_role:
-        name:                          roles-sap-os/2.5-sap-users
-        tasks_from:                    user_nw.yaml
-      vars:
-        tier:                          generic
-        main_password:                 "{{ hostvars.localhost.sap_password }}"
-        sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
-        sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
-      when:                                platform != "ORACLE"
-      tags:
-        - 2.5-sap-users
+    # - name:                            Generic Users and Groups for SAP Installation
+    #   ansible.builtin.include_role:
+    #     name:                          roles-sap-os/2.5-sap-users
+    #     tasks_from:                    user_nw.yaml
+    #   vars:
+    #     tier:                          generic
+    #     main_password:                 "{{ hostvars.localhost.sap_password }}"
+    #     sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
+    #     sapbits_sas_token:             "{{ hostvars.localhost.sapbits_sas_token }}"
+    #   when:                                platform != "ORACLE"
+    #   tags:
+    #     - 2.5-sap-users
 
 
 # /*---------------------------------------------------------------------------8
@@ -136,17 +136,17 @@
         - name:                        "SCS Installation Playbook: - Set 'scs' tier facts"
           ansible.builtin.set_fact:
             tier:                      scs
-            main_password:             "{{ hostvars.localhost.sap_password }}"
+            main_password:             "{{ user_password }}"
             scs_high_availability:     "{{ scs_high_availability }}"
-            sapbits_location_base_path: "{{ hostvars.localhost.sapbits_location_base_path }}"
-            sapbits_sas_token:         "{{ hostvars.localhost.sapbits_sas_token }}"
-            always_upload_jinja_templates: false
+            # sapbits_location_base_path: "{{ hostvars.localhost.sapbits_location_base_path }}"
+            # sapbits_sas_token:         "{{ hostvars.localhost.sapbits_sas_token }}"
+            always_upload_jinja_templates: true
           tags:
             - always
 
         - name:                        "SCS Installation Playbook: - Show SAP password"
           ansible.builtin.debug:
-            msg:                       "{{ hostvars.localhost.sap_password }}"
+            msg:                       "{{ main_password }}"
             verbosity:                 4
 
         - block:

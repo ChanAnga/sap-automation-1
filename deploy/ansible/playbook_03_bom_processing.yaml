@@ -29,12 +29,12 @@
       ansible.builtin.set_fact:
         tier:                          bom_download
 
-    - name:                            Include 0.3.sap-installation-media-storage-details role
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.3.sap-installation-media-storage-details
-        public:                        true
-      vars:
-        tier:                          bom_download
+    # - name:                            Include 0.3.sap-installation-media-storage-details role
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.3.sap-installation-media-storage-details
+    #     public:                        true
+    #   vars:
+    #     tier:                          bom_download
 
 # /*----------------------------------------------------------------------------8
 # |                                                                            |
@@ -61,11 +61,11 @@
     - name:                            "Perform BoM processing"
       block:
 
-        - name:                        Set facts
-          ansible.builtin.set_fact:
-            tier:                      preparation
-            sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
-            sapbits_sas_token:         "{{ hostvars.localhost.sapbits_sas_token }}"
+        # - name:                        Set facts
+        #   ansible.builtin.set_fact:
+        #     tier:                      preparation
+        #     sapbits_location_base_path:    "{{ hostvars.localhost.sapbits_location_base_path }}"
+        #     sapbits_sas_token:         "{{ hostvars.localhost.sapbits_sas_token }}"
 
         - name:                        3.3-bom-processing role
           block:
@@ -74,7 +74,7 @@
                 name:                  roles-sap/3.3-bom-processing
               vars:
                 tier:                  bom_download
-                always_upload_jinja_templates: false
+                always_upload_jinja_templates: true
               tags:
                 - 3.3-bom-processing
 

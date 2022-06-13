@@ -86,19 +86,19 @@
   when:                                not ( (item.extractDir is undefined) or (item.extractDir == '') )
 
 
-# Download Files
-# ------------------<DEBUGGING>-------------------
-- name:                                "3.3 BoM Processing: - List files"
-  ansible.builtin.debug:
-    msg:
-      - "URL : {{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive }}\
-               {% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
-      - "DEST: {{ target_media_location }}/{% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
-      - "MODE: {% if item.permissions is undefined %}0644{% else %}{{ item.permissions }}{% endif %}"
-    verbosity:                         2
-  loop:       "{{ bom.materials.media|flatten(levels=1) }}"
-  when:
-    - item.download is undefined or item.download
+# # Download Files
+# # ------------------<DEBUGGING>-------------------
+# - name:                                "3.3 BoM Processing: - List files"
+#   ansible.builtin.debug:
+#     msg:
+#       - "URL : {{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive }}\
+#                {% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
+#       - "DEST: {{ target_media_location }}/{% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
+#       - "MODE: {% if item.permissions is undefined %}0644{% else %}{{ item.permissions }}{% endif %}"
+#     verbosity:                         2
+#   loop:       "{{ bom.materials.media|flatten(levels=1) }}"
+#   when:
+#     - item.download is undefined or item.download
 # ------------------</DEBUGGING>------------------
 
 - name:                                "3.3 BoM Processing: - Set Python version {{ distribution_id }}"
@@ -124,46 +124,82 @@
     state:                            directory
     mode:                             0775
 
+# - name:                                "3.3 BoM Processing: - Download Files {{ distribution_id }}"
+#   ansible.builtin.get_url:
+#     url:                               "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive | string | trim }}\
+#                                        {% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
+#     dest:                              "{{ target_media_location }}/{% if item.path is undefined %}downloads{% else %}{{ item.path }}{% endif %}/\
+#                                        {% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
+#     mode:                              "{% if item.permissions is undefined %}0644{% else %}{{ item.permissions }}{% endif %}"
+#     tmp_dest:                          "{{ target_media_location }}/tmp"
+#     checksum:                          "{% if item.checksum is defined %}{% if item.checksum | trim | length > 1 %}sha256:{{ item.checksum | upper }}{% endif %}{% endif %}"
+#     validate_certs:                    true
+#   register:                            result
+#   until:                               result is succeeded
+#   retries:                             2
+#   delay:                               5
+#   loop:                                "{{ bom.materials.media|flatten(levels=1) }}"
+#   vars:
+#     ansible_python_interpreter:        "{{ python_version }}"
+#   when:
+#     - item.download is undefined or item.download
+#     - distribution_id in ['suse15', 'redhat8', 'sles_sap15' ]
+
 - name:                                "3.3 BoM Processing: - Download Files {{ distribution_id }}"
-  ansible.builtin.get_url:
-    url:                               "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive | string | trim }}\
-                                       {% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
+  ansible.builtin.copy:
+    src:                               "{{ download_directory }}/files/{{ item.archive | string | trim }}"
     dest:                              "{{ target_media_location }}/{% if item.path is undefined %}downloads{% else %}{{ item.path }}{% endif %}/\
                                        {% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
     mode:                              "{% if item.permissions is undefined %}0644{% else %}{{ item.permissions }}{% endif %}"
-    tmp_dest:                          "{{ target_media_location }}/tmp"
-    checksum:                          "{% if item.checksum is defined %}{% if item.checksum | trim | length > 1 %}sha256:{{ item.checksum | upper }}{% endif %}{% endif %}"
-    validate_certs:                    true
-  register:                            result
-  until:                               result is succeeded
-  retries:                             2
-  delay:                               5
+    # tmp_dest:                          "{{ target_media_location }}/tmp"
+    # checksum:                          "{% if item.checksum is defined %}{% if item.checksum | trim | length > 1 %}sha256:{{ item.checksum | upper }}{% endif %}{% endif %}"
+    # validate_certs:                    true
+  # register:                            result
+  # until:                               result is succeeded
+  # retries:                             2
+  # delay:                               5
   loop:                                "{{ bom.materials.media|flatten(levels=1) }}"
-  vars:
-    ansible_python_interpreter:        "{{ python_version }}"
+  # vars:
+  #   ansible_python_interpreter:        "{{ python_version }}"
   when:
     - item.download is undefined or item.download
     - distribution_id in ['suse15', 'redhat8', 'sles_sap15' ]
 
-- name:                                "3.3 BoM Processing: - Download Files {{ distribution_id }}"
-  ansible.builtin.get_url:
-    url:                               "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive | string | trim }}\
-                                       {% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
-    dest:                              "{{ target_media_location }}/{% if item.path is undefined %}downloads{% else %}{{ item.path }}{% endif %}/\
-                                       {% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
-    mode:                              "{% if item.permissions is undefined %}0644{% else %}{{ item.permissions }}{% endif %}"
-    checksum:                          "{% if item.checksum is defined %}{% if item.checksum | trim | length > 1 %}sha256:{{ item.checksum | upper }}{% endif %}{% endif %}"
-    tmp_dest:                          "{{ target_media_location }}/tmp"
-    validate_certs:                    true
-  register:                            result
-  until:                               result is succeeded
-  retries:                             2
-  delay:                               5
-  loop:                                "{{ bom.materials.media|flatten(levels=1) }}"
-  when:
-    - item.download is undefined or item.download
-    - distribution_id != 'suse15'
-    - distribution_id != 'redhat8'
+# - name:                                "3.3 BoM Processing: - Download Files {{ distribution_id }}"
+#   ansible.builtin.get_url:
+#     url:                               "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/archives/{{ item.archive | string | trim }}\
+#                                        {% if sapbits_sas_token is not undefined %}{{ sapbits_sas_token }}{% endif %}"
+#     dest:                              "{{ target_media_location }}/{% if item.path is undefined %}downloads{% else %}{{ item.path }}{% endif %}/\
+#                                        {% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
+#     mode:                              "{% if item.permissions is undefined %}0644{% else %}{{ item.permissions }}{% endif %}"
+#     checksum:                          "{% if item.checksum is defined %}{% if item.checksum | trim | length > 1 %}sha256:{{ item.checksum | upper }}{% endif %}{% endif %}"
+#     tmp_dest:                          "{{ target_media_location }}/tmp"
+#     validate_certs:                    true
+#   register:                            result
+#   until:                               result is succeeded
+#   retries:                             2
+#   delay:                               5
+#   loop:                                "{{ bom.materials.media|flatten(levels=1) }}"
+#   when:
+#     - item.download is undefined or item.download
+#     - distribution_id != 'suse15'
+#     - distribution_id != 'redhat8'
+
+#   05) Extract files - SAPCAR
+# - name:                                "3.3 BoM Processing: - Extract File, SAPCAR"
+#   ansible.builtin.command:             "{{ target_media_location }}/downloads/SAPCAR -manifest SIGNATURE.SMF \
+#                                          -xf {{ target_media_location }}/{% if item.path is undefined %}downloads{% else %}{{ item.path }}{% endif %}/\
+#                                          {% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
+#   args:
+#     chdir:                             "{{ target_media_location }}/{{ item.extractDir }}"
+#     creates:                           "{{ target_media_location }}/{{ item.extractDir }}/ \
+#                                         {% if item.creates is defined %}{{ item.creates }}{% else %}NOT_DEFINED{% endif %}"
+#   loop:                                "{{ bom.materials.media|flatten(levels=1) }}"
+#   when:
+#     - item.extract is not undefined
+#     # - item.extract
+#     - ( item.filename is undefined and (item.archive |regex_search('[^.]+(?=\\.*$)')|upper=="SAR") ) or
+#       ( item.filename is defined   and (item.filename|regex_search('[^.]+(?=\\.*$)')|upper=="SAR") )
 
 #   05) Extract files - SAPCAR
 - name:                                "3.3 BoM Processing: - Extract File, SAPCAR"

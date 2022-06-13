@@ -1,11 +1,14 @@
-bom_base_name:               S4HANA_2021_ISS_v0001ms
+bom_base_name:               S4HANA_2021_FPS02_v0001ms
+s_user:                      S0024053986
+s_password:                  Suffolk@123
 #kv_name: Name of your Management/Control Plane keyvault
 
 # Set to true to instruct Ansible to update all the packages on the virtual machines
 upgrade_packages:              false 
 
 # TERRAFORM CREATED
-sap_fqdn:                      sapbasis.com                      
+sap_fqdn:                      sapbasis.com
+ansible_domain:                sapbasis.com                      
 # # kv_name is the name of the key vault containing the system credentials
 # kv_name:                       DEVWEEUSAP01user###
 # # secret_prefix is the prefix for the name of the secret stored in key vault
@@ -39,11 +42,16 @@ db_high_availability:          false
 db_lb_ip:                      10.110.96.13
 
 disks:
-  - { host: 'saphdb1', LUN: /dev/vdg, type: 'sap' }
   - { host: 'saphdb1', LUN: /dev/vdb, type: 'data' }
   - { host: 'saphdb1', LUN: /dev/vdc, type: 'data' }
   - { host: 'saphdb1', LUN: /dev/vdd, type: 'log' }
   - { host: 'saphdb1', LUN: /dev/vde, type: 'log' }
   - { host: 'saphdb1', LUN: /dev/vdf, type: 'shared' }
-
+  - { host: 'saphdb1', LUN: /dev/vdg, type: 'sap' }
+  - { host: 'saphdb1', LUN: /dev/vdh, type: 'swap' }
+  - { host: 'saphdb1', LUN: /dev/vdi, type: 'install' }
+  - { host: 'sapwd1', LUN: /dev/vdb, type: 'sap' }
+  - { host: 'sapwd1', LUN: /dev/vdc, type: 'install' }
+  - { host: 'sapwd1', LUN: /dev/vdd, type: 'swap' }
+  
 _workspace_directory: /anganch1_ansible/workspace

@@ -34,30 +34,30 @@
       ansible.builtin.set_fact:
         tier:                          hdb
 
-    - name:                            "Database Installation Playbook: - Read/Create passwords"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.1-passwords
-        public:                        true
+    # - name:                            "Database Installation Playbook: - Read/Create passwords"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.1-passwords
+    #     public:                        true
 
-      tags:
-        - 0.1-passwords
+    #   tags:
+    #     - 0.1-passwords
 
-    - name:                            "Database Installation Playbook: - Read/Create key vault secrets"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.2-kv-secrets
-        public:                        true
-      vars:
-        tier:                          fencing
-      tags:
-        - 0.2-kv-secrets
-      when:                            platform != "ORACLE"
+    # - name:                            "Database Installation Playbook: - Read/Create key vault secrets"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.2-kv-secrets
+    #     public:                        true
+    #   vars:
+    #     tier:                          fencing
+    #   tags:
+    #     - 0.2-kv-secrets
+    #   when:                            platform != "ORACLE"
 
-    - name:                            "Database Installation Playbook: - Read storage account details"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.3.sap-installation-media-storage-details
-        public:                        true
-      tags:
-        - kv-sap-installation-media-storage-details
+    # - name:                            "Database Installation Playbook: - Read storage account details"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.3.sap-installation-media-storage-details
+    #     public:                        true
+    #   tags:
+    #     - kv-sap-installation-media-storage-details
 
 # /*----------------------------------------------------------------------------8
 # |                                                                            |
@@ -88,15 +88,16 @@
         - name:                        "Database Installation Playbook: - Setting the DB facts"
           ansible.builtin.set_fact:
             tier:                      hdb                                     # Actions for HANA DB Serve
-            main_password:             "{{ hostvars.localhost.sap_password }}"
-            sapbits_location_base_path: "{{ hostvars.localhost.sapbits_location_base_path }}"
-            sapbits_sas_token:          "{{ hostvars.localhost.sapbits_sas_token }}"
+            main_password:              "{{ user_password }}"
+            # main_password:              "{{ hostvars.localhost.sap_password }}"
+            # sapbits_location_base_path: "{{ hostvars.localhost.sapbits_location_base_path }}"
+            # sapbits_sas_token:          "{{ hostvars.localhost.sapbits_sas_token }}"
           tags:
             - always
 
         - name:                        "Database Installation Playbook: - Show SAP password"
           ansible.builtin.debug:
-            msg:                       "{{ hostvars.localhost.sap_password }}"
+            msg:                       "{{ main_password }}"
             verbosity:                 4
 
         - block:

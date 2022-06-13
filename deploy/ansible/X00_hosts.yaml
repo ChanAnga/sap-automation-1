@@ -3,35 +3,33 @@ X00_DB:
     saphdb1:
       ansible_host        : 10.0.0.56
       ansible_user        : cloud-user
-      ansible_connection  : local
+      ansible_connection  : ssh 
+      connection_type     : key 
   vars:
     node_tier             : hana
 
-# X00_SCS:
-#   hosts:
-#     X00scs00l538:
-#       ansible_host        : 10.110.32.25
-#       ansible_user        : azureadm
-#       ansible_connection  : ssh 
-#       connection_type     : key
-#   vars:
-#     node_tier             : scs
+X00_SCS:
+  hosts:
+    sapwd1:
+      ansible_host        : 10.0.0.150
+      ansible_user        : cloud-user
+      ansible_connection  : local 
+  vars:
+    node_tier             : scs
 
 # X00_ERS:
 #   hosts:
 #   vars:
 #     node_tier             : ers
 
-# X00_PAS:
-#   hosts:
-#     X00app00l538:
-#       ansible_host        : 10.110.32.24
-#       ansible_user        : azureadm
-#       ansible_connection  : ssh 
-#       connection_type     : key 
-
-#   vars:
-#     node_tier             : pas
+X00_PAS:
+  hosts:
+    sapwd1:
+      ansible_host        : 10.0.0.150
+      ansible_user        : cloud-user
+      ansible_connection  : local 
+  vars:
+    node_tier             : pas
 
 # X00_APP:
 #   hosts:

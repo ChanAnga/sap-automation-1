@@ -29,20 +29,20 @@
       ansible.builtin.set_fact:
         tier:                          dbload
 
-    - name:                            "DBLoad Playbook: - Read/Create passwords"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.1-passwords
-        public:                        true
+    # - name:                            "DBLoad Playbook: - Read/Create passwords"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.1-passwords
+    #     public:                        true
 
-      tags:
-        - 0.1-passwords
+    #   tags: 
+    #     - 0.1-passwords
 
-    - name:                            "DBLoad Playbook: - Read storage account details"
-      ansible.builtin.include_role:
-        name:                          roles-misc/0.3.sap-installation-media-storage-details
-        public:                        true
-      tags:
-        - kv-sap-installation-media-storage-details
+    # - name:                            "DBLoad Playbook: - Read storage account details"
+    #   ansible.builtin.include_role:
+    #     name:                          roles-misc/0.3.sap-installation-media-storage-details
+    #     public:                        true
+    #   tags:
+    #     - kv-sap-installation-media-storage-details
 
 # /*---------------------------------------------------------------------------8
 # |                                                                            |
@@ -74,11 +74,11 @@
         - name:                        "DBLoad Playbook: - Setting the dbload facts"
           ansible.builtin.set_fact:
             tier:                      dbload                                                          # SAP Install phase: DBLOAD
-            main_password:             "{{ hostvars.localhost.sap_password }}"
-            sapbits_location_base_path: "{{ hostvars.localhost.sapbits_location_base_path }}"
-            sapbits_sas_token:         "{{ hostvars.localhost.sapbits_sas_token }}"
+            main_password:             "{{ sap_password }}"
+            # sapbits_location_base_path: "{{ hostvars.localhost.sapbits_location_base_path }}"
+            # sapbits_sas_token:         "{{ hostvars.localhost.sapbits_sas_token }}"
             bom_processing:            true
-            always_upload_jinja_templates: false
+            always_upload_jinja_templates: true
           tags:
             - always
 

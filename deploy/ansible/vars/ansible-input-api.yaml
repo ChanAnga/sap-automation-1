@@ -5,12 +5,12 @@
 # OS Config Settings variables
 chrony_pool:                  ""
 chrony_servers:               []
-timezone:                     "Etc/GMT"
+timezone:                     "UTC"
 
 # BoM Processing variables
 sapbits_bom_files:            "sapfiles"                                                # Default
-target_media_location:        "/usr/sap/install"                                        # Default
-download_directory:           "/mnt/downloads"
+target_media_location:        "/usr/sap/install/S4"                                        # Default
+download_directory:           "/mnt/softwares/S4"
 check_storage_account:        true
 
 always_upload_jinja_templates: true
@@ -18,24 +18,34 @@ always_upload_jinja_templates: true
 # SAP Configuration for templates and install
 aas_hostname:                 ""
 aas_instance_number:          ""
-sap_sid:                      ""                                                        # REQUIRED - SAP Install
+sap_sid:                      "X00"                                                        # REQUIRED - SAP Install
 download_basket_dir:          "{{ target_media_location }}/download_basket"
-hdb_hostname:                 ""
+hdb_hostname:                 "saphdb1"
 db_sid:                       "XDB"                                                     # Default
 hdb_instance_number:          "00"                                                      # Default
 hana_schema:                  "SAPHANADB"
 pas_hostname:                 ""
-pas_instance_number:          "00"
-web_instance_number:          "00"
+pas_instance_number:          "01"
+web_instance_number:          "66"
 password_hana_system:         ""
-main_password:                ""                                                        # SAP Install
+main_password:                "SapBasis@123"                                                        # SAP Install
+user_password:                "SapBasis@123"
+sap_password:                 "SapBasis@123"
 sap_fqdn:                     ""                                                        # SAP Install
 sapadm_uid:                   2100
+daaadm_uid:                   4100
 sapinst_gid:                  2001
 sapsys_gid:                   2000
 
 tmp_directory:                "/tmp"
 url_internet:                 "http://www.github.com"                                   # URL to use for internet access checks"
+
+
+# HANA specific parameters
+hdbshm_gid:                   2002
+tdb_gid:                      3006
+tdb_uid:                      3005
+
 
 # Oracle specific parameters
 ora_sid:                      "ORA"
@@ -47,14 +57,13 @@ asmdba_gid:                   3004
 oinstall_gid:                 3005
 orasid_uid:                   3000
 oracle_uid:                   3001
-hdbshm_gid:                   2002
 observer_uid:                 4000
 scs_hostname:                 ""
 scs_instance_number:          "00"                                                      # SAP Install
 ers_instance_number:          "02"
-app_instance_number:          "00"
-sidadm_uid:                   2000
-hdbadm_uid:                   2200
+app_instance_number:          "01"
+sidadm_uid:                   2009
+hdbadm_uid:                   2209
 scs_lb_ip:                    ""                                                        # SAP HA
 db_lb_ip:                     ""                                                        # SAP HA
 reinstall:                    false                                                     # Provide a way to override the idempotency flags for SAP tasks
@@ -82,6 +91,7 @@ sapbits_sas_token_secret:     "sapbits-sas-token"                               
 
 # NFS
 NFS_provider:                 "NONE"
+supported_tiers:              ["all","scs","hana","pas","aas","web","observer"]
 
 sap_swap:
   - { tier: 'scs',  swap_size_mb: '4096' }
